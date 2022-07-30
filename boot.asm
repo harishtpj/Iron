@@ -1,21 +1,27 @@
-bits 32
+;; Rust Kernel Loader
 
-section .text
-        ; Multiboot Specification
-        align 4
-        dd 0x1BADB002            ; Magic Number
-        dd 0x00                  ; Flags
-        dd - (0x1BADB002 + 0x00) ; Checksum. m+f+c should be zero
-
-global start
-extern kmain	        ;kmain from kernel.rs
-
-start:
-  cli 			        ;block interrupts
-  mov esp, stack_space	;set stack pointer
-  call kmain
-  hlt		 	        ;halt the CPU
-
-section .bss
-resb 8192		        ;8KB for stack
-stack_space:
+MAGIC_NUMBER equ 0x1BADB002                         ; define the magic number constant
+FLAGS        equ 0x0                                ; multiboot flags
+CHECKSUM     equ -MAGIC_NUMBER                      ; calculate the checksum
+                                                    ; (magic number + checksum + flags should equal 0)
+KERNEL_STACK_SIZE equ 8192                          ; size of stack in bytes
+      
+section .text                                       ; Multiboot Specification
+        align 4                   
+        dd MAGIC_NUMBER                              
+        dd FLAGS                    
+        dd CHECKSUM                   
+      
+global start                    
+extern kmain	                                      ; fn kmain() from kernel.rs
+      
+start:                    
+  cli 			                                        ; block interrupts
+  mov esp, kernel_stack + KERNEL_STACK_SIZE	        ; set stack pointer
+  call kmain            
+  hlt		 	                                          ; halt the CPU
+        
+section .bss                    
+align 4                                             ; align at 4 bytes
+kernel_stack:                                       ; label points to beginning of memory
+    resb KERNEL_STACK_SIZE                          ; reserve stack for the kernel
