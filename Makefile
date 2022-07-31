@@ -1,6 +1,6 @@
 OBJECTS = boot.o kernel.o
 RSC = rustc
-RSFLAGS =  -O --target i686-unknown-linux-gnu --crate-type lib --emit obj
+RSFLAGS =  -O --target i686-unknown-linux-gnu --emit obj -C panic=abort
 LDFLAGS = -T link.ld -melf_i386
 AS = nasm
 ASFLAGS = -f elf32

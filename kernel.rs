@@ -19,18 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-   
+
 #![no_std]
 #![no_main]
 
 mod ironlib;
+use ironlib::stdout::*;
 use core::panic::PanicInfo;
 
 #[no_mangle]
 pub extern "C" fn kmain() -> ! {
+    let mut writer = Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    };
 
-    ironlib::stdout::print_something();
-
+    writer.write_string("Hello,");
+    writer.write_byte(b' ');
+    writer.write_string("World");
     loop {}
 }
 
